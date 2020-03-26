@@ -1,5 +1,8 @@
-import datetime
+import datetime, collections
 
+"""
+carrot -- high-level interface to serialize some of the most basic python types into a binary format.
+"""
 
 class String:
     def write(self, string):
@@ -43,16 +46,17 @@ class List:
     def write(self, list):
         return self._write(list)
     def read(self, flux, pos=0):
-        return self._read(flux,pos)
+        pos, value = self._read(flux, pos)
+        return pos, tuple(value)
 
 class Dict:
     def __init__(self, keys, values):
         self.keys = keys
         self.values = values
-        self._read_keys = gen_read_list(keys.read)
-        self._write_keys = gen_write_list(keys.write)
-        self._read_values = gen_read_list(values.read)
-        self._write_values = gen_write_list(values.write)
+        self._read_keys = List(keys).read
+        self._write_keys = List(keys).write
+        self._read_values = List(values).read
+        self._write_values = List(values).write
     def write(self, d):
         keys = []
         values = []
@@ -63,7 +67,7 @@ class Dict:
     def read(self, flux, pos=0):
         pos, keys = self._read_keys(flux,pos)
         pos, values = self._read_values(flux,pos)
-        return {key: value for key, value in zip(keys, values)}
+        return pos, {key: value for key, value in zip(keys, values)}
 
 class Struct:
     def __init__(self, *types):
@@ -79,16 +83,16 @@ class Struct:
         for read in self.read_types:
             pos, result = read(flux,pos)
             results.append(result)
-        return pos, results
+        return pos, tuple(results)
 
 class OrderedDict:
     def __init__(self, keys, values):
         self.keys = keys
         self.values = values
-        self._read_keys = gen_read_list(keys.read)
-        self._write_keys = gen_write_list(keys.write)
-        self._read_values = gen_read_list(values.read)
-        self._write_values = gen_write_list(values.write)
+        self._read_keys = List(keys).read
+        self._write_keys = List(keys).write
+        self._read_values = List(values).read
+        self._write_values = List(values).write
     def write(self, d):
         keys = []
         values = []
@@ -99,7 +103,7 @@ class OrderedDict:
     def read(self, flux, pos=0):
         pos, keys = self._read_keys(flux,pos)
         pos, values = self._read_values(flux,pos)
-        return OrderedDict((key, value) for key, value in zip(keys, values))
+        return pos, collections.OrderedDict(tuple((key, value) for key, value in zip(keys, values)))
 
 class Int32:
     def write(self, int):
@@ -284,8 +288,9 @@ def write_int32(number):
 
 def gen_write_bytes(size):
     def write_bytes(b):
-        if len(b) != size: raise ValueError("Bytes must have lenght %s" % size)
+        if len(b) != size: raise ValueError("Bytes must have lenght %s, but have lenght %s (%s)" % (size, len(b), b))
         return b
+    return write_bytes
 
 def write_int(number):
     number = tobase(number, 2)
