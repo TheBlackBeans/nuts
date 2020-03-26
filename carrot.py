@@ -101,7 +101,11 @@ class OrderedDict:
         pos, values = self._read_values(flux,pos)
         return OrderedDict((key, value) for key, value in zip(keys, values))
 
-        
+class Int32:
+    def write(self, int):
+        return write_int32(int)
+    def read(self, flux, pos=0):
+        return read_int32(flux,pos)
     
 def concr(*fs):
     def wrapper(flux, pos=0):
