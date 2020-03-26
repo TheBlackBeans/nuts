@@ -79,7 +79,7 @@ class Struct:
         for read in self.read_types:
             pos, result = read(flux,pos)
             results.append(result)
-        return result
+        return pos, results
 
 class OrderedDict:
     def __init__(self, keys, values):
