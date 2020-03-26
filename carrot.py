@@ -43,7 +43,7 @@ class List:
     def write(self, list):
         return self._write(list)
     def read(self, flux, pos=0):
-        return self.read(flux,pos)
+        return self._read(flux,pos)
 
 class Dict:
     def __init__(self, keys, values):
