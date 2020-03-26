@@ -53,26 +53,24 @@ class Dict:
     def __init__(self, keys, values):
         self.keys = keys
         self.values = values
-        self._read_keys = List(keys).read
-        self._write_keys = List(keys).write
-        self._read_values = List(values).read
-        self._write_values = List(values).write
+        self._keys = List(keys)
+        self._values = List(values)
     def write(self, d):
         keys = []
         values = []
         for key, value in d.items():
             keys.append(key)
             values.append(value)
-        return self._write_keys(keys) + self._write_values(values)
+        return self._keys.write(keys) + self._values.write(values)
     def read(self, flux, pos=0):
-        pos, keys = self._read_keys(flux,pos)
-        pos, values = self._read_values(flux,pos)
+        pos, keys = self._keys.read(flux,pos)
+        pos, values = self._values.read(flux,pos)
         return pos, {key: value for key, value in zip(keys, values)}
 
 class Struct:
     def __init__(self, *types):
-        self.read_types = [t.read for t in types]
-        self.write_types = [t.write for t in types]
+        self.read_types = tuple(t.read for t in types)
+        self.write_types = tuple(t.write for t in types)
     def write(self, l):
         result = b""
         for i, e in enumerate(l):
