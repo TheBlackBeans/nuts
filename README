@@ -11,3 +11,6 @@
 nuts is a namespace for diverse libraries not on PiPy that my programs require.
 To make it work, simply add the nuts library to you PYTHONPATH
 (or alternativly copy all libraries from nuts and put them into the directory of the program).
+
+Requirements:
+ * simplecrypt relies on PyCryptodome
